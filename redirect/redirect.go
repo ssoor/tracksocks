@@ -12,7 +12,7 @@ import (
 	"github.com/ssoor/fundadore/config"
 	"github.com/ssoor/fundadore/assistant"
 	
-	"github.com/ssoor/shadowsocks/redirect/socksd"
+	"github.com/ssoor/tracksocks/redirect/socksd"
 )
 
 const (

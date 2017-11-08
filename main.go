@@ -18,8 +18,8 @@ import (
 	"github.com/ssoor/fundadore/common"
 	"github.com/ssoor/fundadore/config"
 	
-	"github.com/ssoor/shadowsocks/redirect"
-	"github.com/ssoor/shadowsocks/internest"
+	"github.com/ssoor/tracksocks/redirect"
+	"github.com/ssoor/tracksocks/internest"
 )
 
 const (

@@ -20,7 +20,7 @@ import (
 	"github.com/ssoor/socks"
 	"github.com/ssoor/fundadore/log"
 	
-	"github.com/ssoor/shadowsocks/redirect/socksd/compiler"
+	"github.com/ssoor/tracksocks/redirect/socksd/compiler"
 )
 
 const (
