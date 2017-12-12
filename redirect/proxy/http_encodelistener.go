@@ -1,4 +1,4 @@
-package socksd
+package proxy
 
 import (
 	"encoding/binary"

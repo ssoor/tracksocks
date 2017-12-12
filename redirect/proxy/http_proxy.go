@@ -1,4 +1,4 @@
-package socksd
+package proxy
 
 import (
 	"time"
@@ -9,25 +9,8 @@ import (
 	"github.com/ssoor/fundadore/log"
 )
 
-type HTTPHandler struct {
-	scheme	  string
-	proxy     *socks.HTTPProxy
-}
-
-func (h *HTTPHandler) ServeHTTP(rw http.ResponseWriter, request *http.Request) {
-	request.URL.Scheme = h.scheme
-	request.URL.Host = request.Host
-
-	var handler http.Handler = h.proxy
-
-	handler.ServeHTTP(rw, request)
-}
-
 func StartHTTPProxy(addr string, router socks.Dialer, tran *HTTPTransport) {
-	handler := &HTTPHandler{
-		scheme:    "HTTP",
-		proxy:     socks.NewHTTPProxy("http", router, tran),
-	}
+	handler := socks.NewHTTPProxyHandler("http", router, tran)
 
 	if err := http.ListenAndServe(addr, handler); nil != err {
 		log.Error("Start HTTP proxy at ", addr, " failed, err:", err)
@@ -44,10 +27,7 @@ func StartEncodeHTTPProxy(addr string, router socks.Dialer, tran *HTTPTransport)
 
 		defer listener.Close()
 
-		handler := &HTTPHandler{
-			scheme:    "HTTP",
-			proxy:     socks.NewHTTPProxy("http", router, tran),
-		}
+		handler := socks.NewHTTPProxyHandler("http", router, tran)
 
 
 		if err := http.Serve(listener, handler); nil != err {
@@ -82,10 +62,7 @@ func StartEncodeHTTPSProxy(addr string, router socks.Dialer, tran *HTTPTransport
 			},
 	
 			Addr: addr,
-			Handler: &HTTPHandler{
-				scheme:    "HTTPS",
-				proxy:     socks.NewHTTPProxy("https", router, tran),
-			},
+			Handler: socks.NewHTTPProxyHandler("https", router, tran),
 		}
 
 	if err := serverHTTPS.ServeTLS(listener, "", ""); nil != err {
@@ -102,10 +79,7 @@ func StartHTTPSProxy(addr string, router socks.Dialer, tran *HTTPTransport) {
 		},
 
 		Addr: addr,
-		Handler: &HTTPHandler{
-			scheme:    "HTTPS",
-			proxy:     socks.NewHTTPProxy("https", router, tran),
-		},
+		Handler: socks.NewHTTPProxyHandler("https", router, tran),
 	}
 
 	if err := serverHTTPS.ListenAndServeTLS("", ""); nil != err {

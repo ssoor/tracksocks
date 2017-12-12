@@ -223,7 +223,7 @@ func main() {
 
 	flag.UintVar(&weight, "weight", 0, "program running weight")
 	flag.BoolVar(&debug, "debug", false, "Whether to start the debug mode")
-	flag.StringVar(&guid, "guid", "auto", "unique identifier, used to obtain user configuration")
+	flag.StringVar(&guid, "k", "auto", "unique identifier, used to obtain user configuration")
 	flag.StringVar(&account, "account", "everyone", "user name, used to obtain user configuration")
 
 	flag.Parse()

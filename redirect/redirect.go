@@ -6,13 +6,14 @@ import (
 	"time"
 
 	"github.com/ssoor/socks"
+	"github.com/ssoor/socks/upstream"
 	"github.com/ssoor/fundadore/log"
 	"github.com/ssoor/fundadore/api"
 	"github.com/ssoor/fundadore/common"
 	"github.com/ssoor/fundadore/config"
 	"github.com/ssoor/fundadore/assistant"
 	
-	"github.com/ssoor/tracksocks/redirect/socksd"
+	"github.com/ssoor/tracksocks/redirect/proxy"
 )
 
 const (
@@ -25,14 +26,14 @@ var (
 	ErrorStartEncodeModule error = errors.New("Start encode module failed")
 )
 
-func runHTTPProxy(addr string, streamRouter socks.Dialer, transport *socksd.HTTPTransport, encode bool) {
+func runHTTPProxy(addr string, streamRouter socks.Dialer, transport *proxy.HTTPTransport, encode bool) {
 	waitTime := float32(1)
 
 	for {
 		if encode {
-			socksd.StartEncodeHTTPProxy(addr, streamRouter, transport)
+			proxy.StartEncodeHTTPProxy(addr, streamRouter, transport)
 		} else {
-			socksd.StartHTTPProxy(addr, streamRouter, transport)
+			proxy.StartHTTPProxy(addr, streamRouter, transport)
 		}
 
 		common.ChanSignalExit <- os.Kill
@@ -43,14 +44,14 @@ func runHTTPProxy(addr string, streamRouter socks.Dialer, transport *socksd.HTTP
 	}
 }
 
-func runHTTPSProxy(addr string, streamRouter socks.Dialer, transport *socksd.HTTPTransport, encode bool) {
+func runHTTPSProxy(addr string, streamRouter socks.Dialer, transport *proxy.HTTPTransport, encode bool) {
 	waitTime := float32(1)
 
 	for {
 		if encode {
-			socksd.StartEncodeHTTPSProxy(addr, streamRouter, transport)
+			proxy.StartEncodeHTTPSProxy(addr, streamRouter, transport)
 		} else {
-			socksd.StartHTTPSProxy(addr, streamRouter, transport)
+			proxy.StartHTTPSProxy(addr, streamRouter, transport)
 		}
 
 		common.ChanSignalExit <- os.Kill
@@ -79,14 +80,14 @@ func StartRedirect(account string, guid string, setting config.Redirect) (bool, 
 		return false, ErrorSettingQuery
 	}
 
-	router := socksd.NewUpstreamDialer(setting.UpstreamsURL)
-	transport := socksd.NewHTTPTransport(router, []byte(srules))
+	router := upstream.NewUpstreamDialerByURL(setting.UpstreamsURL, 1 * 60 * 60)
+	httpTransport := proxy.NewHTTPTransport(router, []byte(srules))
 
 	addrHTTP, _ := common.SocketSelectAddr("tcp", connInternalIP)
-	go runHTTPProxy(addrHTTP, router, transport, setting.Encode)
+	go runHTTPProxy(addrHTTP, router, httpTransport, setting.Encode)
 
 	addrHTTPS, _ := common.SocketSelectAddr("tcp", connInternalIP)
-	go runHTTPSProxy(addrHTTPS, router, transport, setting.Encode)
+	go runHTTPSProxy(addrHTTPS, router, httpTransport, setting.Encode)
 
 	log.Info("Creating an internal server:")
 
@@ -99,7 +100,7 @@ func StartRedirect(account string, guid string, setting config.Redirect) (bool, 
 	}
 
 	if setting.Encode {
-		if err = socksd.AddCertificateToSystemStore(); nil != err {
+		if err = proxy.AddCertificateToSystemStore(); nil != err {
 			log.Warning("Add certificate to system stroe failed, err:", err)
 		}
 		
