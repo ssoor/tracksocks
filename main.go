@@ -143,15 +143,14 @@ func startSignalNotify(level uint) {
 	http.Serve(listen, nil)
 }
 
-func goRun(debug bool, weight uint, guid string, account string) {
+func goRun(debug bool, account string, guid string) {
+	buildVer := "20171225"
+	log.Info("[MAIN] Shadowsocks version:", buildVer)
+	log.Info("[MAIN] Shadowsocks account name:", account)
+	log.Info("[MAIN] Shadowsocks unique identifier:", guid)
+
 	var succ bool
 	var err error
-	buildVer := "20170215"
-	log.Info("[MAIN] Version:", buildVer)
-	log.Info("[MAIN] Shadowsocks guid:", guid)
-	log.Info("[MAIN] Shadowsocks weight:", weight)
-	log.Info("[MAIN] Shadowsocks account name:", account)
-	
 	defer func() {
 		log.Info("[EXIT] Shadowsocks start is", succ,", error:", err)
 
@@ -216,15 +215,13 @@ func initLogger(logPath string, logFileName string) (*os.File, error) {
 
 func main() {
 	var debug bool
-	var weight uint
 	var guid, account string
 
 	signal.Notify(common.ChanSignalExit, os.Interrupt, os.Kill)
 
-	flag.UintVar(&weight, "weight", 0, "program running weight")
 	flag.BoolVar(&debug, "debug", false, "Whether to start the debug mode")
-	flag.StringVar(&guid, "k", "auto", "unique identifier, used to obtain user configuration")
-	flag.StringVar(&account, "account", "everyone", "user name, used to obtain user configuration")
+	flag.StringVar(&guid, "guid", "", "unique identifier, used to obtain user configuration")
+	flag.StringVar(&account, "k", "everyone", "user name, used to obtain user configuration")
 
 	flag.Parse()
 	logFile, err := initLogger("${APPDATA}\\SSOOR", "shadowsocks.log")
@@ -235,6 +232,6 @@ func main() {
 	defer logFile.Close()
 	defer log.Info("[EXIT] The shadowsocks has finished running, exiting...")
 
-	go goRun(debug, weight, guid, account)
+	go goRun(debug, account, guid)
 	<-common.ChanSignalExit
 }

@@ -53,6 +53,7 @@ func (this *HTTPTransport) RoundTrip(req *http.Request) (resp *http.Response, er
 	}
 
 	req.Header.Del("X-Forwarded-For")
+	req.Header.Set("Accept-Encoding", "gzip") // golang http response once support gzip
 
 	if resp, err = tranpoort.RoundTrip(req); err != nil {
 		if resp, err = tranpoort.RoundTrip(req); err != nil {
