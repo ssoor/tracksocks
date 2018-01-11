@@ -65,5 +65,17 @@ func (this *HTTPTransport) RoundTrip(req *http.Request) (resp *http.Response, er
 
 	resp = this.Rules.ResolveResponse(req, resp)
 
+	resp.Header.Del("Content-Security-Policy")
+
+	resp.Header.Del("X-Webkit-CSP")
+	resp.Header.Del("X-Content-Security-Policy")
+
+	contentSecurityPolicy := "default-src * blob: data: 'unsafe-inline' 'unsafe-eval';"// script-src 'unsafe-eval';script-src 'unsafe-inline';
+	
+	resp.Header.Add("Content-Security-Policy", contentSecurityPolicy)
+	
+	resp.Header.Add("X-Webkit-CSP", contentSecurityPolicy)
+	resp.Header.Add("X-Content-Security-Policy", contentSecurityPolicy)
+
 	return
 }

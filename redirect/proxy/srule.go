@@ -270,6 +270,7 @@ func (s *SRules) GetRewriteHTML(req *http.Request, resp *http.Response) (dst []b
 		return newHTML, nil
 	}
 
+	resp.ContentLength = int64(len(newHTML))
 	if data, err := s.Replace(Rewrite_HTML, resp.Request.URL, newHTML); nil == err {
 		newHTML = data
 		log.Info("Injection html", resp.Request.URL.String(), " successed, old size", resp.ContentLength, ", new size", len(newHTML))
